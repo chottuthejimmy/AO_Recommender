@@ -95,20 +95,18 @@ def get_random_youtube_link():
     return None
 
 def get_title_from_url(url):
-    response = requests.get(url) # sending a request to the yt url
-
-    if response.status_code != 200:
-        return ("Failed to get title error code: ", response.status_code)
-
-    soup  = BeautifulSoup(response.text, "html.parser")
-  
-    title_tag = soup.find('title')
-
-    if title_tag:
-        title = title_tag.text.replace(" - YouTube", "").strip()
-        return title
+    # YouTube oEmbed API endpoint
+    oembed_url = f"https://www.youtube.com/oembed?url={url}&format=json"
+    
+    # Send a request to the oEmbed API
+    response = requests.get(oembed_url)
+    
+    if response.status_code == 200:
+        # Extract the title from the JSON response
+        data = response.json()
+        return data['title']
     else:
-        return "Error in getting title"
+        return "Error: Unable to fetch video title."
 
 def get_FNF_from_title(title):
     input_message = ("Is this video title fiction or not"+ title)
@@ -206,7 +204,6 @@ def next_video():  # function return closest genre and binary encoding of next v
     recommended = (str(percentage_response) +"%")
     title = get_title_from_url(st.session_state.videos_in_list[0])
     temp_history = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
-    print("temp history: ", temp_history)
     st.session_state.training_history[st.session_state.numberVideos, :] = temp_history
     st.write("**Agent's Recommendation:**  ", recommended)
     st.video(st.session_state.videos_in_list[0])
