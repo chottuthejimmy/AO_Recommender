@@ -185,7 +185,7 @@ def sort_agent_response(agent_response):
     return percentage
 
 
-def prepare_for_next_video():  #Only run once per video
+def prepare_for_next_video(user_feedback):  #Only run once per video
     print("running pfnv")
 
     # Update the training history for the current video, based on user feedback
@@ -199,7 +199,7 @@ def prepare_for_next_video():  #Only run once per video
         st.session_state.videos_in_list.pop(0)  # Remove the first video from the list
         st.session_state.display_video = True
         # Instead of always setting it to "User Disliked," track the actual response
-        st.session_state.training_history[st.session_state.numberVideos - 1, -1] = "User's Feedback"  # Store feedback in history
+        st.session_state.training_history[st.session_state.numberVideos - 1, -1] = user_feedback  # Store feedback in history
 
 
 
@@ -322,11 +322,13 @@ with big_right:
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
         train_agent(user_response="RECOMMEND MORE") # Train agent positively as user like recommendation
-        prepare_for_next_video()
+        user_feedback = "More"
+        prepare_for_next_video(user_feedback)
 
     if small_left.button(":red[STOP RECOMMENDING]", icon=":material/thumb_down:"):
         train_agent(user_response="STOP RECOMMENDING") # train agent negatively as user dislike recommendation
-        prepare_for_next_video()
+        user_feedback = "Less"
+        prepare_for_next_video(user_feedback)
 
     genre, genre_binary_encoding = next_video()
     # if st.session_state.display_video == True:
