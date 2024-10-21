@@ -8,12 +8,10 @@ import numpy as np
 import pandas as pd
 ## for getting title
 import requests
-from bs4 import BeautifulSoup
 import streamlit_analytics2
 
 #for getting youtube length
 from pytube import YouTube
-import yt_dlp
 #for bucketing
 import embedding_bucketing.embedding_model_test as em
 #own modules ao_core arch and config
@@ -35,6 +33,8 @@ if "mood" not in st.session_state:
     st.session_state.mood = "Random"
 if "display_video" not in st.session_state:
     st.session_state.display_video = False
+if "natural_language_input" not in st.session_state:
+    st.session_state.natural_language_input = None
 
 #init agent
 if "agent" not in st.session_state:
@@ -106,6 +106,7 @@ def get_title_from_url(url):
         data = response.json()
         return data['title']
     else:
+        st.write("Error: Unable to fetch title")
         return "Error: Unable to fetch video title."
 
 def get_FNF_from_title(title):
@@ -178,8 +179,26 @@ def sort_agent_response(agent_response):
     percentage = (count / len(agent_response)) * 100 
     return percentage
 
+
+def prepare_for_next_video():  #Only run once per video
+    print("running pfnv")
+
+    # Update the training history for the current video, based on user feedback
+    if st.session_state.natural_language_input:
+        st.session_state.training_history[st.session_state.numberVideos, :] = st.session_state.natural_language_input
+        print("Added", st.session_state.natural_language_input, "to agent history")
+
+    st.session_state.numberVideos += 1
+
+    if len(st.session_state.videos_in_list) > 1:
+        st.session_state.videos_in_list.pop(0)  # Remove the first video from the list
+        st.session_state.display_video = True
+        # Instead of always setting it to "User Disliked," track the actual response
+        st.session_state.training_history[st.session_state.numberVideos - 1, -1] = "User's Feedback"  # Store feedback in history
+
+
+
 def next_video():  # function return closest genre and binary encoding of next video and displays it 
-    #display_video = False
     data = get_random_youtube_link()
     while not data:  # Retry until a valid link is retrieved
         data = get_random_youtube_link()
@@ -187,24 +206,27 @@ def next_video():  # function return closest genre and binary encoding of next v
         st.session_state.videos_in_list.append(data)
     st.session_state.display_video = True
 
-
     length, length_binary, closest_genre, genre_binary_encoding, fnf, fnf_binary = get_video_data_from_url(st.session_state.videos_in_list[0])
-   
     mood_binary, mood = Get_mood_binary()
+    
     st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
     st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
     st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
     st.markdown("     User's Mood: "+str(mood),  help="Inputted by user")
     st.markdown("")
+    
+
     binary_input_to_agent = genre_binary_encoding+ length_binary + fnf_binary +mood_binary
    # st.write("binary input:", binary_input_to_agent)++
     st.session_state.current_binary_input = binary_input_to_agent # storing the current binary input to reduce redundant calls
     st.session_state.recommendation_result = agent_response(binary_input_to_agent)
     percentage_response = sort_agent_response(st.session_state.recommendation_result) 
     recommended = (str(percentage_response) +"%")
+
+
+
     title = get_title_from_url(st.session_state.videos_in_list[0])
-    temp_history = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
-    st.session_state.training_history[st.session_state.numberVideos, :] = temp_history
+    st.session_state.natural_language_input = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
     st.write("**Agent's Recommendation:**  ", recommended)
     st.video(st.session_state.videos_in_list[0])
     return closest_genre, genre_binary_encoding
@@ -279,6 +301,8 @@ with big_left:
     if data not in st.session_state.videos_in_list:
         st.session_state.videos_in_list.append(data)
 
+
+
     st.divider()
     with st.expander("### Agent's Training History"):
         history_titles = ["Title", "Closest Genre", "Duration", "Type", "User's Mood", "Agent's Recommendation", "User's Training" ]
@@ -288,31 +312,19 @@ with big_left:
         st.dataframe(df)
 
 with big_right:
+ 
+    st.write("Video number: ", st.session_state.numberVideos)
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
         train_agent(user_response="RECOMMEND MORE") # Train agent positively as user like recommendation
-        if len(st.session_state.videos_in_list) > 1:
-            st.session_state.videos_in_list.pop(0)  # Remove the first video from the list
-            st.session_state.display_video = True
-            st.session_state.training_history[st.session_state.numberVideos, -1] = "User Liked"
-        # else:
-        #     st.write("The list is empty, cannot pop any more items.")
-        #     st.session_state.display_video = False  #Stop displaying the video once we have run out of videos
-        st.session_state.numberVideos += 1
+        prepare_for_next_video()
+
     if small_left.button(":red[STOP RECOMMENDING]", icon=":material/thumb_down:"):
         train_agent(user_response="STOP RECOMMENDING") # train agent negatively as user dislike recommendation
-        if len(st.session_state.videos_in_list) > 1:
-            st.session_state.videos_in_list.pop(0)  # Remove the first video from the list
-            st.session_state.display_video = True
-            st.session_state.training_history[st.session_state.numberVideos, -1] = "User Disliked"
-        # else:
-        #     st.write("The list is empty, cannot pop any more items.")
-        #     st.session_state.display_video = False  #Stop displaying the video once we have run out of videos
-        st.session_state.numberVideos += 1
-        
-    # if st.session_state.display_video == True:
-    genre, genre_binary_encoding = next_video()
+        prepare_for_next_video()
 
+    genre, genre_binary_encoding = next_video()
+    # if st.session_state.display_video == True:
 st.write("---")
 footer_md = """
     [View & fork the code behind this application here.](https://github.com/aolabsai/Recommender) \n
