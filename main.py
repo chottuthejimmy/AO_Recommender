@@ -46,14 +46,19 @@ if "agent" not in st.session_state:
     random_input_2 = np.random.randint(0, 2, st.session_state.agent.arch.Q__flat.shape, dtype=np.int8)
     random_input_3 = np.random.randint(0, 2, st.session_state.agent.arch.Q__flat.shape, dtype=np.int8)
 
-    random_label = np.random.randint(0,2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+    random_label_0 = np.random.randint(0, 2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+    random_label_1 = np.random.randint(0, 2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+    random_label_2 = np.random.randint(0, 2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+    random_label_3 = np.random.randint(0, 2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+    # random_label = np.random.randint(0,2, st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
 
     random_inputs = [random_input_0, random_input_1, random_input_2, random_input_3]
+    random_labels = [random_label_0, random_label_1, random_label_2, random_label_3]
 
 # intially train on random inputs 
     for i in range(4):
         st.session_state.agent.reset_state()
-        st.session_state.agent.next_state(random_inputs[i], random_label)
+        st.session_state.agent.next_state(random_inputs[i], random_labels[i])
 
 # Constants for embedding bucketing
 max_distance = 20 # setting it high for no auto bucketing
