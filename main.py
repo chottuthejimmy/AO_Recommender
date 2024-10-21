@@ -39,7 +39,7 @@ if "natural_language_input" not in st.session_state:
 #init agent
 if "agent" not in st.session_state:
     print("-------creating agent-------")
-    st.session_state.agent = ao.Agent(arch, notes=[])
+    st.session_state.agent = ao.Agent(arch, notes="Default Agent")
 
     random_input_0 = np.random.randint(0, 2, st.session_state.agent.arch.Q__flat.shape, dtype=np.int8)
     random_input_1 = np.random.randint(0, 2, st.session_state.agent.arch.Q__flat.shape, dtype=np.int8)
@@ -271,6 +271,123 @@ st.set_page_config(
         "About": "AO Labs builds next-gen AI models that learn after training; learn more at docs.aolabs.ai/docs/mnist-benchmark",
     },
 )
+
+############################################################################
+import os
+
+# def reset_interrupt():
+#     st.session_state.interrupt = False
+
+# def set_interrupt():
+#     st.session_state.interrupt = True
+
+with st.sidebar:
+    st.write("## Current Active Agent:")
+    st.write(st.session_state.agent.notes)
+
+    # start_button = st.button(
+    #     "Re-Enable Training & Testing",
+    #     on_click=reset_interrupt,
+    #     help="If you stopped a process\n click to re-enable Testing/Training agents.",
+    # )
+    # stop_button = st.button(
+    #     "Stop Testing",
+    #     on_click=set_interrupt,
+    #     help="Click to stop a current Test if it is taking too long.",
+    # )
+
+    st.write("---")
+    st.write("## Load Agent:")
+
+    def load_pickle_files(directory):
+        pickle_files = [
+            f[:-10] for f in os.listdir(directory) if f.endswith(".ao.pickle")
+        ]  # [:-10] is to remove the "ao.pickle" file extension
+        return pickle_files
+
+    # directory_option = st.radio(
+    #     "Choose directory to retrieve Agents:",
+    #     ("App working directory", "Custom directory"),
+    #     label_visibility="collapsed"
+    # )
+    # if directory_option == "App working directory":
+    directory = os.path.dirname(os.path.abspath(__file__))
+    # else:
+    #     directory = st.text_input("Enter a custom directory path:")
+
+    if directory:
+        pickle_files = load_pickle_files(directory)
+
+        if pickle_files:
+            selected_file = st.selectbox(
+                "Choose from saved Agents:", options=pickle_files
+            )
+
+            if st.button(f"Load {selected_file}"):
+                file_path = os.path.join(directory, selected_file)
+                st.session_state.agent = ao.Agent.unpickle(
+                    file=file_path, custom_name=selected_file
+                )
+                st.session_state.agent._update_neuron_data()
+                st.write("Agent loaded")
+        else:
+            st.warning("No Agents saved yet-- be the first!")
+
+    st.write("---")
+    st.write("## Save Agent:")
+
+    agent_name = st.text_input(
+        "## *Optional* Rename active Agent:", value=st.session_state.agent.notes
+    )
+    st.session_state.agent.notes = agent_name
+
+    @st.dialog("Save successful!")
+    def save_modal_dialog():
+        st.write("Agent saved to your local disk (in the same directory as this app).")
+
+    agent_name = agent_name.split("\\")[-1].split(".")[0]
+    if st.button("Save " + agent_name):
+        st.session_state.agent.pickle(agent_name)
+        save_modal_dialog()
+
+    st.write("---")
+    st.write("## Download/Upload Agents:")
+
+    @st.dialog("Upload successful!")
+    def upload_modal_dialog():
+        st.write(
+            "Agent uploaded and ready as *Newly Uploaded Agent*, which you can rename during saving."
+        )
+
+    uploaded_file = st.file_uploader(
+        "Upload .ao.pickle files here", label_visibility="collapsed"
+    )
+    if uploaded_file is not None:
+        if st.button("Confirm Agent Upload"):
+            st.session_state.agent = ao.Agent.unpickle(
+                uploaded_file, custom_name="Newly Uploaded Agent", upload=True
+            )
+            st.session_state.agent._update_neuron_data()
+            upload_modal_dialog()
+
+    @st.dialog("Download ready")
+    def download_modal_dialog(agent_pickle):
+        st.write(
+            "The Agent's .ao.pickle file will be saved to your default Downloads folder."
+        )
+
+        # Create a download button
+        st.download_button(
+            label="Download Agent: " + st.session_state.agent.notes,
+            data=agent_pickle,
+            file_name=st.session_state.agent.notes,
+            mime="application/octet-stream",
+        )
+
+    if st.button("Prepare Active Agent for Download"):
+        agent_pickle = st.session_state.agent.pickle(download=True)
+        download_modal_dialog(agent_pickle)
+############################################################################
 
 # Title of the app
 st.title("LLM + WNNs - a Real-Time Personal YouTube Recommender")
