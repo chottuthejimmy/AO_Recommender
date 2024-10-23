@@ -55,8 +55,7 @@ if "agent" not in st.session_state:
 max_distance = 20 # setting it high for no auto bucketing
 amount_of_binary_digits = 10
 type_of_distance_calc = "COSINE SIMILARITY"
-start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Family", "Historical", "Biography", "Superhero"
-]
+start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Historical"]
 
 em.config(openai_api_key) # configuring openai client for embedding model
 print("configuring em")
@@ -119,20 +118,22 @@ def get_FNF_from_title(title):
     return fnf_binary, response
 
 def get_length_from_url(url): # returns if the video is short, medium or long in binary
-    yt = YouTube(url)
-    try:
-        length = yt.length
-    except Exception as e:
-        print("error in getting length", e)
-        length = 0
-    length = round(length / 60, 2)
-    length_binary = []
-    if length < 5:
-        length_binary = [0, 0]
-    elif length >= 5 and length < 20:
-        length_binary = [0, 1]
-    else:
-        length_binary = [1, 1]
+    # yt = YouTube(url)
+    # try:
+    #     length = yt.length
+    # except Exception as e:
+    #     print("error in getting length", e)
+    #     length = 0
+    # length = round(length / 60, 2)
+    # length_binary = []
+    # if length < 5:
+    #     length_binary = [0, 0]
+    # elif length >= 5 and length < 20:
+    #     length_binary = [0, 1]
+    # else:
+    #     length_binary = [1, 1]
+    length = 0
+    length_binary = [0,0]  # temp for testing purposes
     return length, length_binary
 
 def get_video_data_from_url(url):
