@@ -19,6 +19,7 @@ from config import openai_api_key
 import ao_core as ao
 from arch__Recommender import arch
 
+import time
 # Initialize global variables
 if "videos_in_list" not in st.session_state:
     st.session_state.videos_in_list = []
@@ -35,6 +36,8 @@ if "display_video" not in st.session_state:
     st.session_state.display_video = False
 if "natural_language_input" not in st.session_state:
     st.session_state.natural_language_input = None
+if "recommened" not in st.session_state:
+    st.session_state.recommended = False
 
 #init agent
 if "agent" not in st.session_state:
@@ -220,7 +223,13 @@ def next_video():  # function return closest genre and binary encoding of next v
     title = get_title_from_url(st.session_state.videos_in_list[0])
     st.session_state.natural_language_input = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
     st.write("**Agent's Recommendation:**  ", recommended)
-    st.video(st.session_state.videos_in_list[0])
+    if percentage_response>=50:
+        st.video(st.session_state.videos_in_list[0])
+    else:
+        st.write("Video not recommended")
+        if st.button("Next"):
+            prepare_for_next_video(user_feedback="Video not recommended")
+            genre, genre_binary_encoding = next_video()
     return closest_genre, genre_binary_encoding
 
 def train_agent(user_response):
