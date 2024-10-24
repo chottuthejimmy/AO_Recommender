@@ -67,7 +67,7 @@ if "cache" not in st.session_state:
 
 
 # Predefined list of random search terms
-random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "computer science"]
+random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "history", "podcast", "romance", "animation", "current events"]
 
 
 def get_random_youtube_link():  
