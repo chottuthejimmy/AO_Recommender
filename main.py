@@ -105,7 +105,7 @@ def get_title_from_url(url):
         return "Error: Unable to fetch video title."
 
 def get_FNF_from_title(title):
-    input_message = ("Is this video title fiction or not"+ title)
+    input_message = ("Is this following video title fiction or not? Title: "+ title)
     response = em.llm_call(input_message)
     response = response.upper() # Making the response upper case for no ambiguity
     fnf_binary = []
@@ -118,28 +118,26 @@ def get_FNF_from_title(title):
     return fnf_binary, response
 
 def get_length_from_url(url): # returns if the video is short, medium or long in binary
-    # yt = YouTube(url)
-    # try:
-    #     length = yt.length
-    # except Exception as e:
-    #     print("error in getting length", e)
-    #     length = 0
-    # length = round(length / 60, 2)
-    # length_binary = []
-    # if length < 5:
-    #     length_binary = [0, 0]
-    # elif length >= 5 and length < 20:
-    #     length_binary = [0, 1]
-    # else:
-    #     length_binary = [1, 1]
-    length = 0
-    length_binary = [0,0]  # temp for testing purposes
+    yt = YouTube(url)
+    try:
+        length = yt.length
+    except Exception as e:
+        print("error in getting length", e)
+        length = 0
+    length = round(length / 60, 2)
+    length_binary = []
+    if length < 5:
+        length_binary = [0, 0]
+    elif length >= 5 and length < 20:
+        length_binary = [0, 1]
+    else:
+        length_binary = [1, 1]
     return length, length_binary
 
 def get_video_data_from_url(url):
     length, length_binary = get_length_from_url(url)
     title = get_title_from_url(url)
-    closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
+    # closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
     genre_binary_encoding = genre_binary_encoding.tolist()
     fnf_binary, fnf = get_FNF_from_title(title)
     return length, length_binary, closest_genre, genre_binary_encoding, fnf, fnf_binary
@@ -208,7 +206,8 @@ def next_video():  # function return closest genre and binary encoding of next v
 
     
 
-    binary_input_to_agent = genre_binary_encoding+ length_binary + fnf_binary +mood_binary
+    # binary_input_to_agent = genre_binary_encoding+ length_binary + fnf_binary +mood_binary
+    binary_input_to_agent = genre_binary_encoding + [0,0] + [0] + mood_binary
    # st.write("binary input:", binary_input_to_agent)++
     st.session_state.current_binary_input = binary_input_to_agent # storing the current binary input to reduce redundant calls
     st.session_state.recommendation_result = agent_response(binary_input_to_agent)
@@ -273,15 +272,16 @@ st.set_page_config(
 )
 
 ############################################################################
-import os
-
-# def reset_interrupt():
-#     st.session_state.interrupt = False
-
-# def set_interrupt():
-#     st.session_state.interrupt = True
-
 with st.sidebar:
+
+    import os
+
+    # def reset_interrupt():
+    #     st.session_state.interrupt = False
+
+    # def set_interrupt():
+    #     st.session_state.interrupt = True
+
     st.write("## Current Active Agent:")
     st.write(st.session_state.agent.notes)
 
