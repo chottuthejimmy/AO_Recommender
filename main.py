@@ -19,6 +19,7 @@ from config import openai_api_key
 import ao_core as ao
 from arch__Recommender import arch
 
+import time
 # Initialize global variables
 if "videos_in_list" not in st.session_state:
     st.session_state.videos_in_list = []
@@ -35,7 +36,10 @@ if "display_video" not in st.session_state:
     st.session_state.display_video = False
 if "natural_language_input" not in st.session_state:
     st.session_state.natural_language_input = None
-
+if "recommened" not in st.session_state:
+    st.session_state.recommended = False
+if "number_videos_not_recommended" not in st.session_state:
+    st.session_state.number_videos_not_recommended = 0
 #init agent
 if "agent" not in st.session_state:
     print("-------creating agent-------")
@@ -51,8 +55,7 @@ if "agent" not in st.session_state:
 max_distance = 20 # setting it high for no auto bucketing
 amount_of_binary_digits = 10
 type_of_distance_calc = "COSINE SIMILARITY"
-start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Family", "Historical", "Biography", "Superhero"
-]
+start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Historical"]
 
 em.config(openai_api_key) # configuring openai client for embedding model
 print("configuring em")
@@ -64,7 +67,7 @@ if "cache" not in st.session_state:
 
 
 # Predefined list of random search terms
-random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "computer science"]
+random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "history", "podcast", "romance", "animation", "current events"]
 
 
 def get_random_youtube_link():  
@@ -72,7 +75,7 @@ def get_random_youtube_link():
     search_term = random.choice(random_search_terms)
     
     # Get videos from scrapetube
-    videos = scrapetube.get_search(query=search_term, limit=10)
+    videos = scrapetube.get_search(query=search_term, limit=30)
     
     # Shuffle and pick a random video
     video_list = list(videos)
@@ -102,7 +105,7 @@ def get_title_from_url(url):
         return "Error: Unable to fetch video title."
 
 def get_FNF_from_title(title):
-    input_message = ("Is this video title fiction or not"+ title)
+    input_message = ("Is this following video title fiction or not? Title: "+ title)
     response = em.llm_call(input_message)
     response = response.upper() # Making the response upper case for no ambiguity
     fnf_binary = []
@@ -134,7 +137,7 @@ def get_length_from_url(url): # returns if the video is short, medium or long in
 def get_video_data_from_url(url):
     length, length_binary = get_length_from_url(url)
     title = get_title_from_url(url)
-    closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
+    # closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
     genre_binary_encoding = genre_binary_encoding.tolist()
     fnf_binary, fnf = get_FNF_from_title(title)
     return length, length_binary, closest_genre, genre_binary_encoding, fnf, fnf_binary
@@ -200,15 +203,11 @@ def next_video():  # function return closest genre and binary encoding of next v
 
     length, length_binary, closest_genre, genre_binary_encoding, fnf, fnf_binary = get_video_data_from_url(st.session_state.videos_in_list[0])
     mood_binary, mood = Get_mood_binary()
-    
-    st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
-    st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
-    st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
-    st.markdown("     User's Mood: "+str(mood),  help="Inputted by user")
-    st.markdown("")
+
     
 
-    binary_input_to_agent = genre_binary_encoding+ length_binary + fnf_binary +mood_binary
+    # binary_input_to_agent = genre_binary_encoding+ length_binary + fnf_binary +mood_binary
+    binary_input_to_agent = genre_binary_encoding + [0,0] + [0] + mood_binary
    # st.write("binary input:", binary_input_to_agent)++
     st.session_state.current_binary_input = binary_input_to_agent # storing the current binary input to reduce redundant calls
     st.session_state.recommendation_result = agent_response(binary_input_to_agent)
@@ -219,8 +218,21 @@ def next_video():  # function return closest genre and binary encoding of next v
 
     title = get_title_from_url(st.session_state.videos_in_list[0])
     st.session_state.natural_language_input = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
-    st.write("**Agent's Recommendation:**  ", recommended)
-    st.video(st.session_state.videos_in_list[0])
+    if percentage_response>=50:
+        st.write("Skipped", st.session_state.number_videos_not_recommended)
+        st.session_state.number_videos_not_recommended = 0
+        st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
+        st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
+        st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
+        st.markdown("     User's Mood: "+str(mood),  help="Inputted by user")
+        st.markdown("")
+        st.write("**Agent's Recommendation:**  ", recommended)
+        st.video(st.session_state.videos_in_list[0])
+    else:
+        st.session_state.number_videos_not_recommended += 1
+        #if st.button("Next"):
+        prepare_for_next_video(user_feedback="Video not recommended")
+        genre, genre_binary_encoding = next_video()
     return closest_genre, genre_binary_encoding
 
 def train_agent(user_response):
@@ -260,15 +272,16 @@ st.set_page_config(
 )
 
 ############################################################################
-import os
-
-# def reset_interrupt():
-#     st.session_state.interrupt = False
-
-# def set_interrupt():
-#     st.session_state.interrupt = True
-
 with st.sidebar:
+
+    import os
+
+    # def reset_interrupt():
+    #     st.session_state.interrupt = False
+
+    # def set_interrupt():
+    #     st.session_state.interrupt = True
+
     st.write("## Current Active Agent:")
     st.write(st.session_state.agent.notes)
 
