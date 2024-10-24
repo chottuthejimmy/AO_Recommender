@@ -137,7 +137,7 @@ def get_length_from_url(url): # returns if the video is short, medium or long in
 def get_video_data_from_url(url):
     length, length_binary = get_length_from_url(url)
     title = get_title_from_url(url)
-    # closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
+    closest_genre, genre_binary_encoding = embedding_bucketing_response(st.session_state.cache, title, max_distance, st.session_state.genre_buckets, type_of_distance_calc, amount_of_binary_digits)
     genre_binary_encoding = genre_binary_encoding.tolist()
     fnf_binary, fnf = get_FNF_from_title(title)
     return length, length_binary, closest_genre, genre_binary_encoding, fnf, fnf_binary
@@ -218,8 +218,11 @@ def next_video():  # function return closest genre and binary encoding of next v
 
     title = get_title_from_url(st.session_state.videos_in_list[0])
     st.session_state.natural_language_input = [title, closest_genre, length, fnf, mood, recommended, "User's Training"]
-    if percentage_response>=50:
-        st.write("Skipped", st.session_state.number_videos_not_recommended)
+    if percentage_response >= 50:
+
+        if st.session_state.number_videos_not_recommended > 0: 
+            t0 = ("Skipped " + str(st.session_state.number_videos_not_recommended) + " videos")
+            st.markdown(t0, help="The recommender is set to skip videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up.")
         st.session_state.number_videos_not_recommended = 0
         st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
         st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
@@ -434,7 +437,7 @@ with big_left:
 
 with big_right:
  
-    st.write("Video number: ", st.session_state.numberVideos)
+    st.write("Video number: ", str(st.session_state.numberVideos))
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
         train_agent(user_response="RECOMMEND MORE") # Train agent positively as user like recommendation
