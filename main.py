@@ -54,9 +54,10 @@ if "agent" not in st.session_state:
 
 # Constants for embedding bucketing
 max_distance = 20 # setting it high for no auto bucketing
-amount_of_binary_digits = 10
+amount_of_binary_digits = 3
 type_of_distance_calc = "COSINE SIMILARITY"
-start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Historical"]
+# start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Historical"]
+start_Genre = ["Comedy", "News", "Music", "Podcast", "Educational", "Anime"]
 
 em.config(openai_api_key) # configuring openai client for embedding model
 print("configuring em")
@@ -68,15 +69,15 @@ if "cache" not in st.session_state:
 
 
 # Predefined list of random search terms
-random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "history", "podcast", "romance", "animation", "current events"]
-
+# random_search_terms = ['funny', 'gaming', 'science', 'technology', 'news', 'random', 'adventure', "programming", "history", "podcast", "romance", "animation", "current events"]
+random_search_terms = start_Genre
 
 def get_random_youtube_link():  
     # Select a random search term
     search_term = random.choice(random_search_terms)
     
     # Get videos from scrapetube
-    videos = scrapetube.get_search(query=search_term, limit=30)
+    videos = scrapetube.get_search(query=search_term, limit=10)
     
     # Shuffle and pick a random video
     video_list = list(videos)
@@ -227,8 +228,8 @@ def next_video():  # function return closest genre and binary encoding of next v
             st.markdown(t0, help="The recommender is set to skip videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up.")
         st.session_state.number_videos_not_recommended = 0
         st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
-        st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
-        st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
+        # st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
+        # st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
         st.markdown("     User's Mood: "+str(mood),  help="Inputted by user")
         st.markdown("")
         st.write("**Agent's Recommendation:**  ", recommended)
@@ -441,7 +442,19 @@ with big_left:
         st.dataframe(df)
 
 with big_right:
- 
+    # with st.expander("How this app works", expanded=True, icon=":material/question_mark:"):
+    #     explain_txt = '''YouTube recommendations are often impersonal and hard to control-- the ominous **Algorithm**.  
+    #     This is preview of a personal recommender that's (re)trained only on your data as you use it.  
+    #     **How it works:** an embedding model classifies the video (from its title) as a specific genre and you as the user can set your mood. There's an AO Agent (see its architecture here) that learns to associate the genre and mood with your "Recommend More" or "Stop Recommending" button clicks to filter new videos according to your accumulated preferences.  
+    #     Below the buttons, you can see the genre, the mood you set, and the percentage of recommendation of the Agent for that particular video.  
+    #     You can then train your Agent by clicking the recommend more or stop buttons.  
+    #     **Things to try:**  
+    #     * see if your AO Agent can learn to recommend mostly specific genre, say News and Podcasts, when you're in a serious mood.  
+    #     * try unlearning an Agent's recommendations by clicking "Stop Recommending."  
+    #     * if you like an Agent, you can save (or even download) it for future sessions using the sidebar to the left.  
+    #     **Note:** While in preview mode, the app currently only have only has the following genres for now: Comedy, Music, Anime, News, Podcast, Educational  
+    #     Our systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Anime when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build!'''
+    #     st.markdown(explain_txt)
     st.write("Video number: ", str(st.session_state.numberVideos))
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
