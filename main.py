@@ -447,7 +447,7 @@ with big_right:
         
         Below the buttons, you can see the genre, the mood you set, and the percentage of recommendation of the Agent for that particular video. You can then train your Agent by clicking the recommend more or stop buttons.  
 
-        **Things to try:***  
+        ***Things to try:***
         * see if your AO Agent can learn to recommend a specific genre for you, like News or Podcasts, when you're in a Serious mood.  
         * try unlearning an Agent's recommendations by clicking "Stop Recommending."  
         * if you like an Agent's recommendations, you can save (or even download) it for future sessions using the sidebar to the left.  
@@ -457,7 +457,7 @@ with big_right:
         Our lightweight systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like viewing device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Anime when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build! [Take a look at the code here.](https://github.com/aolabsai/recommender)
         '''
         st.markdown(explain_txt)
-        st.write("Video number: ", str(st.session_state.numberVideos))
+    st.write("Video number: ", str(st.session_state.numberVideos))
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
         train_agent(user_response="RECOMMEND MORE") # Train agent positively as user like recommendation
