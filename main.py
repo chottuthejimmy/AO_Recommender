@@ -408,9 +408,6 @@ with big_left:
     st.session_state.mood = st.selectbox("Set your mood (as the user):", ("Random", "Funny", "Serious"))
     st.divider()
     url = st.text_input("Enter link to a YouTube video: ", value=None, placeholder="Optional", help="This app automatically loads YouTube videos, and you can also add a specific YouTube link here.")
-    # Input for the number of links
-#    count = st.text_input("How many links to load", value='0')
-#    count = int(count) 
     if url !=None:
         if st.button("Add Link"):
             try:
@@ -422,8 +419,6 @@ with big_left:
             except Exception as e:
                 st.write("Error: URL not recognised; please try another")
             st.session_state.display_video = True
-
-    # Start button logic (removed the button)
 
     data = get_random_youtube_link()
     while not data:  # Retry until a valid link is retrieved
@@ -441,28 +436,28 @@ with big_left:
             )
         st.dataframe(df)
 
-# with big_right:
-with st.expander("How this app works:", expanded=True, icon=":material/question_mark:"):
-    explain_txt = '''
-    YouTube recommendations are often impersonal and hard to control-- the ominous *"Algorithm."*
+with big_right:
+    with st.expander("How this app works:", expanded=True, icon=":material/question_mark:"):
+        explain_txt = '''
+        YouTube recommendations are often impersonal and hard to control-- the ominous *"Algorithm."*
 
-    This app is a preview of a new concept-- a personal recommender that's continuously (re)trained only on your data as you use it; the idea of a recommender as a remote control instead of a pre-trained model trying to get your views.\n
-    
-    ***How it works:*** an embedding model classifies the video (from its title) as  a specific genre and you as the user can set your mood. There's an AO Agent (see its [architecture here](https://github.com/aolabsai/Recommender/blob/main/arch__Recommender.py)) that learns to associate the genre and mood with your "Recommend More" or "Stop Recommending" button clicks to learn to filter new videos according to your accumulated preferences.  
-    
-    Below the buttons, you can see the genre, the mood you set, and the percentage of recommendation of the Agent for that particular video. You can then train your Agent by clicking the recommend more or stop buttons.  
+        This app is a preview of a new concept-- a personal recommender that's continuously (re)trained only on your data as you use it; the idea of a recommender as a remote control instead of a pre-trained model trying to get your views.\n
+        
+        ***How it works:*** an embedding model classifies the video (from its title) as  a specific genre and you as the user can set your mood. There's an AO Agent (see its [architecture here](https://github.com/aolabsai/Recommender/blob/main/arch__Recommender.py)) that learns to associate the genre and mood with your "Recommend More" or "Stop Recommending" button clicks to learn to filter new videos according to your accumulated preferences.  
+        
+        Below the buttons, you can see the genre, the mood you set, and the percentage of recommendation of the Agent for that particular video. You can then train your Agent by clicking the recommend more or stop buttons.  
 
-    **Things to try:***  
-    * see if your AO Agent can learn to recommend a specific genre for you, like News or Podcasts, when you're in a Serious mood.  
-    * try unlearning an Agent's recommendations by clicking "Stop Recommending."  
-    * if you like an Agent's recommendations, you can save (or even download) it for future sessions using the sidebar to the left.  
+        **Things to try:***  
+        * see if your AO Agent can learn to recommend a specific genre for you, like News or Podcasts, when you're in a Serious mood.  
+        * try unlearning an Agent's recommendations by clicking "Stop Recommending."  
+        * if you like an Agent's recommendations, you can save (or even download) it for future sessions using the sidebar to the left.  
 
-    ***Note:*** To make testing easier while in preview mode, the app is fixed on a few genres: Comedy, Music, Anime, News, Podcast, Educational  
-    
-    Our lightweight systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like viewing device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Anime when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build! [Take a look at the code here.](https://github.com/aolabsai/recommender)
-    '''
-    st.markdown(explain_txt)
-    st.write("Video number: ", str(st.session_state.numberVideos))
+        ***Note:*** To make testing easier while in preview mode, the app is fixed on a few genres: Comedy, Music, Anime, News, Podcast, Educational  
+        
+        Our lightweight systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like viewing device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Anime when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build! [Take a look at the code here.](https://github.com/aolabsai/recommender)
+        '''
+        st.markdown(explain_txt)
+        st.write("Video number: ", str(st.session_state.numberVideos))
     small_right, small_left = st.columns(2)
     if small_right.button(":green[RECOMMEND MORE]", type="primary", icon=":material/thumb_up:"):#
         train_agent(user_response="RECOMMEND MORE") # Train agent positively as user like recommendation
