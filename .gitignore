@@ -2,3 +2,4 @@ config.py
 __pycache__
 .env
 genre_embedding_cache.json
+recommendr
