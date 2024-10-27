@@ -225,7 +225,7 @@ def next_video():  # function return closest genre and binary encoding of next v
             st.session_state.threshold += 10  # bring the threshold up once videos are being recommended
         if st.session_state.number_videos_not_recommended > 0: 
             t0 = ("Skipped " + str(st.session_state.number_videos_not_recommended) + " videos")
-            st.markdown(t0, help="The recommender is set to skip videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up.")
+            #st.markdown(t0, help="The recommender is set to skip videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up.")
         st.session_state.number_videos_not_recommended = 0
         st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
         # st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
