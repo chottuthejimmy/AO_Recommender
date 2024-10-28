@@ -57,7 +57,7 @@ max_distance = 20 # setting it high for no auto bucketing
 amount_of_binary_digits = 3
 type_of_distance_calc = "COSINE SIMILARITY"
 # start_Genre = ["Drama", "Comedy", "Action", "Romance", "Documentary", "Music", "Gaming", "Entertainment", "News", "Thriller", "Horror", "Science Fiction", "Fantasy", "Adventure", "Mystery", "Animation", "Historical"]
-start_Genre = ["Comedy", "News", "Music", "Podcast", "Educational", "Anime"]
+start_Genre = ["Comedy", "News", "Music", "Podcast", "Educational", "Documentary"]
 
 em.config(openai_api_key) # configuring openai client for embedding model
 print("configuring em")
@@ -452,9 +452,9 @@ with big_right:
         * try unlearning an Agent's recommendations by clicking "Stop Recommending."  
         * if you like an Agent's recommendations, you can save (or even download) it for future sessions using the sidebar to the left.  
 
-        ***Note:*** To make testing easier while in preview mode, the app is fixed on a few genres: Comedy, Music, Anime, News, Podcast, Educational  
+        ***Note:*** To make testing easier while in preview mode, the app is fixed on a few genres: Comedy, Music, Documentary, News, Podcast, Educational  
         
-        Our lightweight systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like viewing device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Anime when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build! [Take a look at the code here.](https://github.com/aolabsai/recommender)
+        Our lightweight systems can easily be extended with more inputs (content-specific inputs like fiction/non-fiction or duration and user-specific inputs like viewing device or day of week) to learn to serve more complicated, nuanced recommendations (eg. maybe you like the News only when you're in a Serious mood on your iPad, and Comedy when in a Random mood on your TV). If you're building a recommender, get in touch to explore the possibilities continuous, per-user training can unlock for your build! [Take a look at the code here.](https://github.com/aolabsai/recommender)
         '''
         st.markdown(explain_txt)
     st.write("Video number: ", str(st.session_state.numberVideos))
