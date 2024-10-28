@@ -258,7 +258,8 @@ def train_agent(user_response):
         label = np.zeros(st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
     
     # st.session_state.agent.next_state(INPUT=binary_input, Cpos=Cpos, Cneg=Cneg, print_result=False)
-    st.session_state.agent.next_state(INPUT=binary_input, LABEL=label, print_result=False)
+    for i in range(5):
+        st.session_state.agent.next_state(INPUT=binary_input, LABEL=label, print_result=False)
 
 
 def agent_response(binary_input): # function to get agent response on next video
