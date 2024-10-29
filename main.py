@@ -28,7 +28,7 @@ if "recommendation_result" not in st.session_state:
 if "current_binary_input" not in st.session_state:
     st.session_state.current_binary_input = []
 if "training_history" not in st.session_state:
-    st.session_state.training_history = (np.zeros([100,7], dtype="O"))
+    st.session_state.training_history = (np.zeros([1000,7], dtype="O"))
     st.session_state.numberVideos = 0
 if "mood" not in st.session_state:
     st.session_state.mood = "Random"
