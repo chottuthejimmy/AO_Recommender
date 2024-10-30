@@ -268,9 +268,14 @@ def train_agent(user_response):
 def agent_response(binary_input): # function to get agent response on next video
     #input = get_agent_input()
     st.session_state.agent.reset_state()
-    st.session_state.agent.next_state( INPUT=binary_input, print_result=False)
-    response = st.session_state.agent.story[st.session_state.agent.state-1, st.session_state.agent.arch.Z__flat]
-    return response
+    last_response = 0
+    for i in range(5):
+        response = st.session_state.agent.next_state( INPUT=binary_input, print_result=False)
+        print("response:", response)
+        if i==4:
+            last_response=response
+            print("Last response: ", last_response)
+    return last_response
 
 streamlit_analytics2.start_tracking()
 st.set_page_config(
