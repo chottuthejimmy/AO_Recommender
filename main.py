@@ -262,7 +262,7 @@ def train_agent(user_response):
     # st.session_state.agent.next_state(INPUT=binary_input, Cpos=Cpos, Cneg=Cneg, print_result=False)
     for i in range(size):
         st.session_state.agent.reset_state()
-        st.session_state.agent.next_state(INPUT=binary_input, LABEL=label, print_result=False)
+        st.session_state.agent.next_state(INPUT=binary_input, LABEL=label, print_result=False, unsequenced=True)
 
 
 def agent_response(binary_input): # function to get agent response on next video
