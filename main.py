@@ -252,13 +252,16 @@ def train_agent(user_response):
         Cpos = True 
         Cneg = False
         label  = np.ones(st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+        size = 5
     elif user_response == "STOP RECOMMENDING":
         Cneg = True
         Cpos = False
         label = np.zeros(st.session_state.agent.arch.Z__flat.shape, dtype=np.int8)
+        size = 10
     
     # st.session_state.agent.next_state(INPUT=binary_input, Cpos=Cpos, Cneg=Cneg, print_result=False)
-    for i in range(5):
+    for i in range(size):
+        st.session_state.agent.reset_state()
         st.session_state.agent.next_state(INPUT=binary_input, LABEL=label, print_result=False)
 
 
