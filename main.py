@@ -223,21 +223,21 @@ def next_video():  # function return closest genre and binary encoding of next v
     if percentage_response >= st.session_state.threshold:
         if st.session_state.threshold<50:
             st.session_state.threshold += 10  # bring the threshold up once videos are being recommended
-        if st.session_state.number_videos_not_recommended > 0: 
-            t0 = ("Skipped " + str(st.session_state.number_videos_not_recommended) + " videos")
-            t0_help = "The recommender is set to skip videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up. (If it gets stuck skipping videos, we temporarily reduce the 50 percent threshold.)"
-            st.markdown(t0, help=t0_help)
-        st.session_state.number_videos_not_recommended = 0
         st.markdown("     Genre: "+str(closest_genre), help="Extracted by an LLM")
         # st.markdown("     Length: "+str(length), help="in minutes; extracted via pytube")
         # st.markdown("     Fiction/Non-fiction: "+str(fnf), help="Extracted by an LLM")
         st.markdown("     User's Mood: "+str(mood),  help="Inputted by user")
         st.markdown("")
         st.write("**Agent's Recommendation:**  ", recommended)
+        if st.session_state.number_videos_not_recommended > 0: 
+            t0 = (str(st.session_state.number_videos_not_recommended) + " videos were skipped to get to the recommendation below")
+            t0_help = "The recommender skips videos that are below 50 percent recommendation, in effect learning on the fly to filter for you. If it's being too selective and skipping too many videos, try clicking the **Stop Recommending** to change things up. (If it gets stuck skipping videos, we temporarily reduce the 50 percent threshold.)"
+            st.markdown(t0, help=t0_help)
+        st.session_state.number_videos_not_recommended = 0
         st.video(st.session_state.videos_in_list[0])
     else:
         if st.session_state.number_videos_not_recommended >5:
-            st.session_state.threshold -= 10  #If the recommended is going in a non recommending spiral then we conter that by bring the recommend threshold down
+            st.session_state.threshold -= 10  #If the recommended is going in a non recommending spiral then we counter that by bring the recommend threshold down
             print("Bought threshold down to ", st.session_state.threshold)
         st.session_state.number_videos_not_recommended += 1
         #if st.button("Next"):
