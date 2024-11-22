@@ -157,11 +157,11 @@ def embedding_bucketing_response(cache, uncategorized_input, max_distance, bucke
 def Get_mood_binary():
     mood = st.session_state.mood.upper()
     # converting mood to binary here
-    if mood == "RANDOM":
+    if mood == "Random":
         mood_binary = [1,0]
-    if mood == "Serious":
+    elif mood == "Serious":
         mood_binary = [1,1]
-    if mood == "FUNNY":
+    elif mood == "Funny":
         mood_binary = [0,1]
     else:
         mood_binary = [0,0] # if mood is not defined then give it 0,0
