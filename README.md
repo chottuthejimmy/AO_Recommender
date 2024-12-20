@@ -28,7 +28,7 @@ If you plan to run the app in a conda or virtual environment, make sure to set u
     ```bash
     OPENAI_API_KEY=your_openai_api_key_here
     ```
-*Note: make sure the key has the permissions to use the embedding models, it actually uses the `text-embedding-3-small` model*
+*Note: make sure the key has the permissions to use the embedding models, it actually uses the `text-embedding-3-small` model and the `gpt-3.5-turbo` model*
 
 4. Run the application with the following command:
 
