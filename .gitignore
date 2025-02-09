@@ -4,3 +4,8 @@ __pycache__
 genre_embedding_cache.json
 recommendr
 venv/
+.cache
+
+# ignore all json files alteast during dev
+*.json
+
