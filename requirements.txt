@@ -5,15 +5,9 @@ requests==2.32.3
 scrapetube==2.5.1
 streamlit
 streamlit_analytics2
-python-dotenv
-spotipy
 
-git+https://github.com/Raf ipilot/embedding_bucketing
+git+https://github.com/Rafipilot/embedding_bucketing
 # git+https://github.com/aolabsai/ao_core
 # git+https://github.com/aolabsai/ao_arch
 
 beautifulsoup4  # for adding metadata to index.html when deploying with docker
-
-# install ao_arch and ao_core
-git+https://github.com/aolabsai/ao_arch 
-git+https://github.com/aolabsai/ao_core
